@@ -5,8 +5,8 @@ import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/response";
 
 import { createIssue } from "./issue.service";
-
 import { getAllIssues } from "./issue.service";
+import { getSingleIssue } from "./issue.service";
 
 export const createIssueController =
   catchAsync(
@@ -59,6 +59,30 @@ export const getAllIssuesController =
           success: true,
           message:
             "Issues retrieved successfully",
+          data: result,
+        }
+      );
+    }
+  );
+
+export const getSingleIssueController =
+  catchAsync(
+    async (
+      req: Request,
+      res: Response
+    ) => {
+      const result =
+        await getSingleIssue(
+          Number(req.params.id)
+        );
+
+      sendResponse(
+        res,
+        200,
+        {
+          success: true,
+          message:
+            "Issue retrieved successfully",
           data: result,
         }
       );
