@@ -8,6 +8,7 @@ import { createIssue } from "./issue.service";
 import { getAllIssues } from "./issue.service";
 import { getSingleIssue } from "./issue.service";
 import { updateIssue } from "./issue.service";
+import { deleteIssue } from "./issue.service";
 
 export const createIssueController =
   catchAsync(
@@ -114,6 +115,28 @@ export const updateIssueController =
           message:
             "Issue updated successfully",
           data: result,
+        }
+      );
+    }
+  );
+
+export const deleteIssueController =
+  catchAsync(
+    async (
+      req: Request,
+      res: Response
+    ) => {
+      await deleteIssue(
+        Number(req.params.id)
+      );
+
+      sendResponse(
+        res,
+        200,
+        {
+          success: true,
+          message:
+            "Issue deleted successfully",
         }
       );
     }

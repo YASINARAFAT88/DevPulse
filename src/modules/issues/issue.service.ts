@@ -206,6 +206,34 @@ export const getSingleIssue = async (
   };
 };
 
+export const deleteIssue = async (
+  issueId: number
+) => {
+  const issueResult = await pool.query(
+    `
+      SELECT *
+      FROM issues
+      WHERE id = $1
+    `,
+    [issueId]
+  );
+
+  if (issueResult.rows.length === 0) {
+    throw new AppError(
+      "Issue not found",
+      404
+    );
+  }
+
+  await pool.query(
+    `
+      DELETE FROM issues
+      WHERE id = $1
+    `,
+    [issueId]
+  );
+};
+
 export const updateIssue = async (
   issueId: number,
   payload: {
