@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import { env } from "../config/env";
 
 interface JwtPayload {
   id: number;
@@ -9,7 +10,7 @@ interface JwtPayload {
 export const generateToken = (payload: JwtPayload) => {
   return jwt.sign(
     payload,
-    process.env.JWT_SECRET as string,
+    env.JWT_SECRET as string,
     {
       expiresIn: "7d",
     }

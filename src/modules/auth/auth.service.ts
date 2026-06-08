@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import { pool } from "../../config/db";
 import { SignupBody } from "./auth.types";
 import { generateToken } from "../../utils/jwt";
-import AppError from "../../utils/app.Error";
+import AppError from "../../utils/App.Error";
 
 export const signupUser = async (
   payload: SignupBody

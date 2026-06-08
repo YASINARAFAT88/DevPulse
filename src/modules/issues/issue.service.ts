@@ -1,6 +1,6 @@
 import { pool } from "../../config/db";
 import { CreateIssueBody } from "./issue.types";
-import AppError from "../../utils/app.Error";
+import AppError from "../../utils/App.Error";
 
 export const createIssue = async (
   payload: CreateIssueBody,
@@ -224,34 +224,6 @@ export const getSingleIssue = async (
   };
 };
 
-export const deleteIssue = async (
-  issueId: number
-) => {
-  const issueResult = await pool.query(
-    `
-      SELECT *
-      FROM issues
-      WHERE id = $1
-    `,
-    [issueId]
-  );
-
-  if (issueResult.rows.length === 0) {
-    throw new AppError(
-      "Issue not found",
-      404
-    );
-  }
-
-  await pool.query(
-    `
-      DELETE FROM issues
-      WHERE id = $1
-    `,
-    [issueId]
-  );
-};
-
 export const updateIssue = async (
   issueId: number,
   payload: {
@@ -342,4 +314,32 @@ export const updateIssue = async (
   );
 
   return result.rows[0];
+};
+
+export const deleteIssue = async (
+  issueId: number
+) => {
+  const issueResult = await pool.query(
+    `
+      SELECT *
+      FROM issues
+      WHERE id = $1
+    `,
+    [issueId]
+  );
+
+  if (issueResult.rows.length === 0) {
+    throw new AppError(
+      "Issue not found",
+      404
+    );
+  }
+
+  await pool.query(
+    `
+      DELETE FROM issues
+      WHERE id = $1
+    `,
+    [issueId]
+  );
 };
