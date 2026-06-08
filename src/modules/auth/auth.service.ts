@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import { pool } from "../../config/db";
 import { SignupBody } from "./auth.types";
 import { generateToken } from "../../utils/jwt";
+import AppError from "../../utils/app.Error";
 
 export const signupUser = async (
   payload: SignupBody
@@ -14,8 +15,11 @@ export const signupUser = async (
   );
 
   if (existingUser.rows.length > 0) {
-    throw new Error("Email already exists");
-  }
+    throw new AppError(
+  "Email already exists",
+  400
+);
+}
 
   const hashedPassword = await bcrypt.hash(
     password,
@@ -51,8 +55,10 @@ export const loginUser = async (
   );
 
   if (userResult.rows.length === 0) {
-    throw new Error("Invalid credentials");
-  }
+    throw new AppError(
+  "Invalid credentials",
+  401
+)};
 
   const user = userResult.rows[0];
 
@@ -62,7 +68,7 @@ export const loginUser = async (
   );
 
   if (!matched) {
-    throw new Error("Invalid credentials");
+    throw new AppError("Invalid credentials", 401);
   }
 
   const token = generateToken({

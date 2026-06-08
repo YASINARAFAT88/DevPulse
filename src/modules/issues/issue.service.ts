@@ -50,6 +50,22 @@ export const getAllIssues = async (
   type?: string,
   status?: string
 ) => {
+
+    const validSort = [
+  "newest",
+  "oldest",
+];
+
+if (
+  sort &&
+  !validSort.includes(sort)
+) {
+  throw new AppError(
+    "Invalid sort value",
+    400
+  );
+}
+
   const conditions: string[] = [];
   const values: string[] = [];
 
@@ -168,8 +184,10 @@ export const getSingleIssue = async (
   );
 
   if (issueResult.rows.length === 0) {
-    throw new Error("Issue not found");
-  }
+    throw new AppError(
+  "Issue not found",
+  404
+)};
 
   const issue = issueResult.rows[0];
 
