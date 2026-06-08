@@ -6,6 +6,7 @@ import {
   createIssueController,
   getAllIssuesController,
   getSingleIssueController,
+  updateIssueController,
 } from "./issue.controller";
 
 
@@ -18,6 +19,6 @@ router.get("/", getAllIssuesController);
 
 router.get( "/:id", getSingleIssueController );
 
-
+router.patch( "/:id", auth, updateIssueController );
 
 export default router;

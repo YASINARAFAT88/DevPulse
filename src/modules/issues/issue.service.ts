@@ -1,5 +1,6 @@
 import { pool } from "../../config/db";
 import { CreateIssueBody } from "./issue.types";
+import AppError from "../../utils/app.Error";
 
 export const createIssue = async (
   payload: CreateIssueBody,
@@ -203,4 +204,96 @@ export const getSingleIssue = async (
     updated_at:
       issue.updated_at,
   };
+};
+
+export const updateIssue = async (
+  issueId: number,
+  payload: {
+    title?: string;
+    description?: string;
+    type?: string;
+    status?: string;
+  },
+  user: {
+    id: number;
+    role: string;
+  }
+) => {
+  const issueResult = await pool.query(
+    `
+    SELECT *
+    FROM issues
+    WHERE id = $1
+    `,
+    [issueId]
+  );
+
+  if (issueResult.rows.length === 0) {
+    throw new AppError(
+      "Issue not found",
+      404
+    );
+  }
+
+  const issue = issueResult.rows[0];
+
+  // contributor rules
+
+  if (user.role === "contributor") {
+    if (issue.reporter_id !== user.id) {
+      throw new AppError(
+        "You can only update your own issues",
+        403
+      );
+    }
+
+    if (issue.status !== "open") {
+      throw new AppError(
+        "Open issues only can be edited",
+        409
+      );
+    }
+
+    // contributor cannot change status
+
+    delete payload.status;
+  }
+
+  const updatedTitle =
+    payload.title ?? issue.title;
+
+  const updatedDescription =
+    payload.description ??
+    issue.description;
+
+  const updatedType =
+    payload.type ?? issue.type;
+
+  const updatedStatus =
+    payload.status ??
+    issue.status;
+
+  const result = await pool.query(
+    `
+    UPDATE issues
+    SET
+      title = $1,
+      description = $2,
+      type = $3,
+      status = $4,
+      updated_at = CURRENT_TIMESTAMP
+    WHERE id = $5
+
+    RETURNING *
+    `,
+    [
+      updatedTitle,
+      updatedDescription,
+      updatedType,
+      updatedStatus,
+      issueId,
+    ]
+  );
+
+  return result.rows[0];
 };
