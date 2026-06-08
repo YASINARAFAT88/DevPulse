@@ -1,19 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-
-// const globalErrorHandler = (
-//   err: Error,
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   res.status(500).json({
-//     success: false,
-//     message: err.message || "Something went wrong",
-//     errors: err,
-//   });
-// };
-
-
 import AppError from "../utils/app.Error";
 
 const globalErrorHandler = (
@@ -23,15 +8,27 @@ const globalErrorHandler = (
   next: NextFunction
 ) => {
   let statusCode = 500;
+  let message = "Something went wrong";
 
   if (err instanceof AppError) {
     statusCode = err.statusCode;
+    message = err.message;
+  } else if ("code" in err) {
+    const pgError = err as Error & { code?: string };
+
+    // PostgreSQL unique violation
+    if (pgError.code === "23505") {
+      statusCode = 400;
+      message = "Duplicate resource";
+    }
+  } else {
+    message = err.message;
   }
 
   res.status(statusCode).json({
     success: false,
-    message: err.message,
-    errors: err,
+    message,
+    errors: err.message,
   });
 };
 
